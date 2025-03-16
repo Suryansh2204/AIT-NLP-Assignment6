@@ -33,6 +33,7 @@ The application flow:
 - The model fetches relevant context from FAISS (using `aboutMe.pdf`).
 - The GPT-4o-Mini composes an answer.
 - The answer (and source if available) is returned to the UI and displayed to the user.
+![Untitled video - Made with Clipchamp](https://github.com/user-attachments/assets/42779f7f-03cc-4595-82a2-5da1c24c3ee7)
 <hr>
 
 The structure is organized as follows:
