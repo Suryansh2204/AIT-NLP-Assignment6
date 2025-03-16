@@ -1,32 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type Props = {
   text: string;
   speed?: number;
 };
 
-const useTypewriter = (text: string, speed = 50) => {
+export const useTypewriter = (text: string, speed: number) => {
   const [displayText, setDisplayText] = useState("");
+  const idx = useRef(0);
+  const displayTextRef = useRef("");
   useEffect(() => {
-    let i = 0;
-
-    const typeCharacter = () => {
-      if (i < text.length) {
-        setDisplayText((prevText) => prevText + text.charAt(i));
-        setTimeout(typeCharacter, speed);
+    const typingInterval = setInterval(() => {
+      if (idx.current < text.length) {
+        displayTextRef.current += text.charAt(idx.current);
+        setDisplayText(() => displayTextRef.current);
+        idx.current += 1;
+      } else {
+        clearInterval(typingInterval);
       }
-      i++;
+    }, speed);
+    return () => {
+      setDisplayText("");
+      clearInterval(typingInterval);
     };
-
-    typeCharacter();
   }, [text, speed]);
-
   return displayText;
 };
 
 const Typewriter = ({ text, speed }: Props) => {
-  const displayText = useTypewriter(text, speed);
-  return <p style={{ display: "contents" }}>{displayText}</p>;
+  const displayText = useTypewriter(text, speed ? speed : 50);
+  return (
+    <p
+      style={{ display: "contents", fontFamily: "cursive", lineHeight: "20px" }}
+    >
+      {displayText}
+    </p>
+  );
 };
 
 export default Typewriter;

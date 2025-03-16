@@ -32,6 +32,7 @@ const darkTheme = createTheme({
 interface Message {
   text: string;
   sender: "user" | "bot";
+  source?: string;
 }
 
 const Chatbot: React.FC = () => {
@@ -39,17 +40,45 @@ const Chatbot: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const [isBotTyping, setIsBotTyping] = useState<boolean>(false);
 
-  const sendMessage = () => {
+  const handleSubmit = async () => {
     if (!input.trim() || isBotTyping) return;
-
+    let answer = "";
     const userMessage: Message = { text: input, sender: "user" };
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/get-answer?question=${input.trim()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const res = await response.json();
+        if (res.error) {
+          console.log(res.error);
+        } else {
+          answer = res.answer;
+          if (res.source && answer !== "I don't know.") {
+            answer += ` (source: ${res.source})`;
+          }
+        }
+      }
+    } catch (error) {
+      if (error) console.error("Error:", error);
+      console.log("Something went wrong. Please try again later.");
+    }
+
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsBotTyping(true);
 
     setTimeout(() => {
       const botResponse: Message = {
-        text: input,
+        text: answer,
         sender: "bot",
       };
       setMessages((prev) => [...prev, botResponse]);
@@ -59,7 +88,7 @@ const Chatbot: React.FC = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      sendMessage();
+      handleSubmit();
     }
   };
 
@@ -77,7 +106,6 @@ const Chatbot: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                {/* {msg.text} */}
                 {msg.sender === "bot" ? (
                   <Typewriter text={msg.text} />
                 ) : (
@@ -99,7 +127,7 @@ const Chatbot: React.FC = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={sendMessage}
+              onClick={handleSubmit}
               disabled={isBotTyping || !input.trim()}
             >
               Send
