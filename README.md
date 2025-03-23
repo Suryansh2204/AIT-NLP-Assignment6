@@ -147,7 +147,7 @@ AIT-NLP-Assignment6/
 
 ```
 git clone https://github.com/Suryansh2204/AIT-NLP-Assignment6.git
-cd AIT-NLP-Assignment5
+cd AIT-NLP-Assignment6
 ```
 
 ## Setup and Running the Application
